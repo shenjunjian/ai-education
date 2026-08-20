@@ -1,0 +1,85 @@
+:root {
+  color: #1a1a1a;
+  background: #f6f4ef;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+.shell-panel {
+  border: 0;
+  margin: 0;
+  padding: 2rem;
+  font: inherit;
+  font-size: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: inherit;
+}
+
+.shell-panel-english {
+  background: #d9e8f5;
+}
+
+.shell-panel-math {
+  background: #e8f0d9;
+}
+
+.shell-panel:hover,
+.shell-panel:focus-visible {
+  filter: brightness(0.97);
+  outline: none;
+}
+
+.learning-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem;
+  background: #fff;
+}
+
+.learning-mode h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.learning-mode button {
+  font: inherit;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #bbb;
+  border-radius: 0.35rem;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.learning-mode button:hover,
+.learning-mode button:focus-visible {
+  background: #f0f0f0;
+}

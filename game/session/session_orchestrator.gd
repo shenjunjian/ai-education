@@ -59,6 +59,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause_menu"):
 		if _pause.visible:
+			_clear_pending_exit()
 			_pause.hide_pause()
 			get_tree().paused = false
 		else:
@@ -116,9 +117,18 @@ func _on_save_retry_success() -> void:
 	if _pending_exit_to_menu:
 		_pending_exit_to_menu = false
 		get_tree().change_scene_to_file("res://ui/main_menu.tscn")
-	elif _pending_quit:
+		return
+	if _pending_quit:
 		_pending_quit = false
 		get_tree().quit()
+		return
+	var current := _lock.get_current()
+	if current != null:
+		_start_for(current)
+
+func _clear_pending_exit() -> void:
+	_pending_exit_to_menu = false
+	_pending_quit = false
 
 func _on_target_changed(previous: NpcActor, current: NpcActor) -> void:
 	if previous != null:

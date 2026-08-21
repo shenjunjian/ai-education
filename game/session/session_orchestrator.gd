@@ -53,6 +53,16 @@ func _ready() -> void:
 		if npc != null:
 			npc.set_voice_phase("idle")
 	)
+	_voice.connection_state_changed.connect(func(state: String) -> void:
+		match state:
+			"no_credentials":
+				_banner.show_message("请在本机配置中填写火山引擎凭证（user://credentials.cfg）", false)
+			"disconnected":
+				_banner.show_message("连接断开", true)
+			"connected", "connecting":
+				if _last_failed_record.is_empty():
+					_banner.hide_banner()
+	)
 	if _lock.get_current() != null:
 		_start_for(_lock.get_current())
 

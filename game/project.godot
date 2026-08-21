@@ -1,0 +1,24 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+config/name="Immersive English"
+config/description="Immersive English speaking practice"
+run/main_scene="res://ui/main_menu.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+config/icon="res://icon.svg"
+
+[audio]
+driver/enable_input=true
+
+[autoload]
+GameLog="*res://autoload/game_log.gd"
+InputBindings="*res://autoload/input_bindings.gd"
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="forward_plus"

@@ -1,0 +1,7 @@
+game/.godot/
+game/export/
+build/
+*.translation
+user://
+.DS_Store
+Thumbs.db

@@ -16,3 +16,5 @@
 ## 打开
 
 用 Godot 导入本目录（`game/`），主场景为 `ui/main_menu.tscn`。
+
+换目标测试：在 Godot 中临时将主场景改为 `world/indoor_neutral_two_npcs.tscn`。

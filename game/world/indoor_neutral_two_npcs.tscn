@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://world/indoor_neutral.gd" id="1"]
 [ext_resource type="PackedScene" path="res://world/player.tscn" id="2"]
@@ -7,8 +7,13 @@
 [ext_resource type="Script" path="res://interaction/target_lock.gd" id="5"]
 [ext_resource type="PackedScene" path="res://ui/crosshair.tscn" id="6"]
 [ext_resource type="Resource" path="res://data/personas/stock_clerk.tres" id="7"]
-[ext_resource type="PackedScene" path="res://ui/subtitle_hud.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="9"]
+[ext_resource type="Script" path="res://session/conversation_session.gd" id="8"]
+[ext_resource type="Script" path="res://session/title_generator.gd" id="9"]
+[ext_resource type="Script" path="res://voice/voice_session.gd" id="10"]
+[ext_resource type="PackedScene" path="res://ui/subtitle_hud.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://ui/status_banner.tscn" id="13"]
+[ext_resource type="Script" path="res://session/session_orchestrator.gd" id="14"]
 
 [sub_resource type="Environment" id="Environment_indoor"]
 background_mode = 1
@@ -71,8 +76,23 @@ persona = ExtResource("7")
 [node name="TargetLock" type="Node" parent="."]
 script = ExtResource("5")
 
+[node name="ConversationSession" type="Node" parent="."]
+script = ExtResource("8")
+
+[node name="TitleGenerator" type="Node" parent="."]
+script = ExtResource("9")
+
+[node name="VoiceSession" type="Node" parent="."]
+script = ExtResource("10")
+
 [node name="Crosshair" parent="." instance=ExtResource("6")]
 
-[node name="SubtitleHud" parent="." instance=ExtResource("8")]
+[node name="SubtitleHud" parent="." instance=ExtResource("11")]
 
-[node name="PauseMenu" parent="." instance=ExtResource("9")]
+[node name="PauseMenu" parent="." instance=ExtResource("12")]
+
+[node name="StatusBanner" parent="." instance=ExtResource("13")]
+
+[node name="SessionOrchestrator" type="Node" parent="."]
+script = ExtResource("14")
+scene_id = "indoor_neutral"

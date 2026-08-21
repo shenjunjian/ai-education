@@ -1,0 +1,153 @@
+class_name SessionOrchestrator
+extends Node
+
+@export var scene_id: String = "indoor_neutral"
+
+@onready var _lock: TargetLock = get_parent().get_node("TargetLock")
+@onready var _session: ConversationSession = get_parent().get_node("ConversationSession")
+@onready var _titles: TitleGenerator = get_parent().get_node("TitleGenerator")
+@onready var _voice: VoiceSession = get_parent().get_node("VoiceSession")
+@onready var _hud: Node = get_parent().get_node("SubtitleHud")
+@onready var _pause: Node = get_parent().get_node("PauseMenu")
+@onready var _banner: Node = get_parent().get_node("StatusBanner")
+
+var _ending := false
+var _last_failed_record: Dictionary = {}
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("session_orchestrator")
+	_hud.bind_session(_session)
+	_lock.target_changed.connect(_on_target_changed)
+	_pause.resume_pressed.connect(func() -> void:
+		_pause.hide_pause()
+		get_tree().paused = false
+	)
+	_pause.exit_scene_pressed.connect(_exit_to_menu)
+	_pause.process_mode = Node.PROCESS_MODE_ALWAYS
+	_banner.get_retry_button().pressed.connect(_retry_save_or_voice)
+	_voice.transcript.connect(func(role: String, text: String, is_final: bool) -> void:
+		if is_final:
+			_session.append_turn(role, text)
+			_hud.clear_live()
+		else:
+			_hud.show_live(role, text)
+	)
+	_voice.listen_state_changed.connect(func(on: bool) -> void:
+		var npc := _lock.get_current()
+		if npc == null:
+			return
+		npc.set_voice_phase("listen" if on else "idle")
+	)
+	_voice.talk_state_changed.connect(func(on: bool) -> void:
+		var npc := _lock.get_current()
+		if npc == null:
+			return
+		npc.set_voice_phase("talk" if on else "idle")
+	)
+	_voice.playback_stalled.connect(func() -> void:
+		var npc := _lock.get_current()
+		if npc != null:
+			npc.set_voice_phase("idle")
+	)
+	if _lock.get_current() != null:
+		_start_for(_lock.get_current())
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause_menu"):
+		if _pause.visible:
+			_pause.hide_pause()
+			get_tree().paused = false
+		else:
+			get_tree().paused = true
+			_pause.show_pause()
+		get_viewport().set_input_as_handled()
+
+func end_current_and_save() -> void:
+	if _ending:
+		return
+	_ending = true
+	_voice.stop()
+	if _session.has_non_empty_turns():
+		var title: String = await _titles.generate_title(_session.get_turns())
+		var rec := {
+			"id": _uuid(),
+			"title": title,
+			"started_at": _session.get_started_at(),
+			"ended_at": int(Time.get_unix_time_from_system() * 1000.0),
+			"scene_id": _session.get_scene_id(),
+			"persona_id": _session.get_persona_id(),
+			"turns": _session.get_turns(),
+		}
+		var path := ConversationStore.save_record(rec)
+		if path.is_empty():
+			_last_failed_record = rec
+			_banner.show_message("未保存", true)
+		else:
+			_last_failed_record = {}
+	_session.clear()
+	_hud.clear_live()
+	_ending = false
+
+func retry_save() -> void:
+	if _last_failed_record.is_empty():
+		return
+	var path := ConversationStore.save_record(_last_failed_record)
+	if path.is_empty():
+		_banner.show_message("未保存", true)
+	else:
+		_last_failed_record = {}
+		_banner.hide_banner()
+
+func _on_target_changed(previous: NpcActor, current: NpcActor) -> void:
+	if previous != null:
+		await end_current_and_save()
+	if current != null:
+		_start_for(current)
+
+func _start_for(npc: NpcActor) -> void:
+	var persona := npc.get_persona()
+	var pid := ""
+	if persona != null and persona.is_valid():
+		pid = persona.id
+	_session.begin(scene_id, pid)
+	_hud.bind_session(_session)
+	if persona == null or not persona.is_valid():
+		GameLog.log_line("persona invalid; not starting voice")
+		return
+	_voice.set_interrupt_enabled(AppConfig.is_interrupt_enabled())
+	_voice.start(persona)
+
+func _exit_to_menu() -> void:
+	get_tree().paused = false
+	await end_current_and_save()
+	get_tree().change_scene_to_file("res://ui/main_menu.tscn")
+
+func _retry_save_or_voice() -> void:
+	if not _last_failed_record.is_empty():
+		retry_save()
+		return
+	_voice.retry()
+
+func _exit_tree() -> void:
+	_voice.stop()
+	if _session.has_non_empty_turns():
+		var rec := {
+			"id": _uuid(),
+			"title": TitleGenerator.fallback_title(_session.get_turns()),
+			"started_at": _session.get_started_at(),
+			"ended_at": int(Time.get_unix_time_from_system() * 1000.0),
+			"scene_id": _session.get_scene_id(),
+			"persona_id": _session.get_persona_id(),
+			"turns": _session.get_turns(),
+		}
+		ConversationStore.save_record(rec)
+		_session.clear()
+
+func _uuid() -> String:
+	var c := Crypto.new()
+	var b := c.generate_random_bytes(16)
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	var hex := b.hex_encode()
+	return "%s-%s-%s-%s-%s" % [hex.substr(0, 8), hex.substr(8, 4), hex.substr(12, 4), hex.substr(16, 4), hex.substr(20, 12)]

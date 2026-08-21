@@ -13,6 +13,7 @@ driver/enable_input=true
 buses/default_bus_layout="res://default_bus_layout.tres"
 
 [autoload]
+AppConfig="*res://autoload/app_config.gd"
 GameLog="*res://autoload/game_log.gd"
 InputBindings="*res://autoload/input_bindings.gd"
 

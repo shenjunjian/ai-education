@@ -10,6 +10,7 @@ config/icon="res://icon.svg"
 
 [audio]
 driver/enable_input=true
+buses/default_bus_layout="res://default_bus_layout.tres"
 
 [autoload]
 GameLog="*res://autoload/game_log.gd"

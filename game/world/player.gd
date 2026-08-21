@@ -50,8 +50,9 @@ func _apply_camera_mode() -> void:
 	_fp_camera.current = not _third_person
 	_tp_camera.current = _third_person
 	_mesh.visible = _third_person
-	_spring.rotation = Vector3.ZERO
 	if _third_person:
+		_spring.rotation_degrees = Vector3(-12.0, 0.0, 0.0)
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
+		_spring.rotation = Vector3.ZERO
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

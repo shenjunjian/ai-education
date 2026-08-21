@@ -90,6 +90,8 @@ script = ExtResource("8")
 [node name="TitleGenerator" type="Node" parent="."]
 script = ExtResource("9")
 
+[node name="Http" type="HTTPRequest" parent="TitleGenerator"]
+
 [node name="MicInput" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamMicrophone_mic")
 bus = &"Mic"

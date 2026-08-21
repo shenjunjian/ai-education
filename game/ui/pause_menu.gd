@@ -15,7 +15,7 @@ func _ready() -> void:
 		AppConfig.set_interrupt_enabled(v)
 		var voice := get_parent().get_node_or_null("VoiceSession")
 		if voice != null:
-			voice.set_interrupt_enabled(AppConfig.is_interrupt_enabled())
+			voice.set_interrupt_enabled(v)
 	)
 	_anchor.clear()
 	_anchor.add_item("字幕：右上角", 0)

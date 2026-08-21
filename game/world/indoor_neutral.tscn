@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://world/indoor_neutral.gd" id="1"]
 [ext_resource type="PackedScene" path="res://world/player.tscn" id="2"]
@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="11"]
 [ext_resource type="PackedScene" path="res://ui/status_banner.tscn" id="12"]
 [ext_resource type="Script" path="res://session/session_orchestrator.gd" id="13"]
+[ext_resource type="Script" path="res://voice/mic_capture.gd" id="14"]
+[ext_resource type="Script" path="res://voice/pcm_player.gd" id="15"]
 
 [sub_resource type="Environment" id="Environment_indoor"]
 background_mode = 1
@@ -23,6 +25,12 @@ ambient_light_energy = 0.7
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
 albedo_color = Color(0.76, 0.74, 0.7, 1)
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_mic"]
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_voice"]
+mix_rate = 24000
+buffer_length = 0.3
 
 [node name="IndoorNeutral" type="Node3D"]
 script = ExtResource("1")
@@ -77,8 +85,23 @@ script = ExtResource("7")
 [node name="TitleGenerator" type="Node" parent="."]
 script = ExtResource("8")
 
+[node name="MicInput" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_mic")
+bus = &"Mic"
+
+[node name="NpcVoice" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_voice")
+
 [node name="VoiceSession" type="Node" parent="."]
 script = ExtResource("9")
+
+[node name="MicCapture" type="Node" parent="VoiceSession"]
+script = ExtResource("14")
+mic_player_path = NodePath("../MicInput")
+
+[node name="PcmPlayer" type="Node" parent="VoiceSession"]
+script = ExtResource("15")
+player_path = NodePath("../NpcVoice")
 
 [node name="Crosshair" parent="." instance=ExtResource("6")]
 

@@ -57,6 +57,8 @@ func _ready() -> void:
 		match state:
 			"no_credentials":
 				_banner.show_message("请在本机配置中填写火山引擎凭证（user://credentials.cfg）", false)
+			"no_microphone":
+				_banner.show_message("需要麦克风权限或可用的麦克风设备", false)
 			"disconnected":
 				_banner.show_message("连接断开", true)
 			"connected", "connecting":

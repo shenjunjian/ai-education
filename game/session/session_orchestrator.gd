@@ -1,6 +1,8 @@
 class_name SessionOrchestrator
 extends Node
 
+signal save_finished(ok: bool)
+
 @export var scene_id: String = "indoor_neutral"
 
 @onready var _lock: TargetLock = get_parent().get_node("TargetLock")
@@ -12,6 +14,7 @@ extends Node
 @onready var _banner: Node = get_parent().get_node("StatusBanner")
 
 var _ending := false
+var _listening := false
 var _last_failed_record: Dictionary = {}
 var _pending_exit_to_menu := false
 var _pending_quit := false
@@ -37,6 +40,7 @@ func _ready() -> void:
 			_hud.show_live(role, text)
 	)
 	_voice.listen_state_changed.connect(func(on: bool) -> void:
+		_listening = on
 		var npc := _lock.get_current()
 		if npc == null:
 			return
@@ -46,7 +50,10 @@ func _ready() -> void:
 		var npc := _lock.get_current()
 		if npc == null:
 			return
-		npc.set_voice_phase("talk" if on else "idle")
+		if on:
+			npc.set_voice_phase("talk")
+		else:
+			npc.set_voice_phase("listen" if _listening else "idle")
 	)
 	_voice.playback_stalled.connect(func() -> void:
 		var npc := _lock.get_current()
@@ -81,7 +88,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func end_current_and_save() -> bool:
 	if _ending:
-		return _last_failed_record.is_empty()
+		return await save_finished
+	get_tree().paused = false
 	_ending = true
 	_voice.stop()
 	var ok := true
@@ -106,6 +114,7 @@ func end_current_and_save() -> bool:
 	if ok:
 		_session.clear()
 		_hud.clear_live()
+	save_finished.emit(ok)
 	_ending = false
 	return ok
 

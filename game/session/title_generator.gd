@@ -1,6 +1,12 @@
 class_name TitleGenerator
 extends Node
 
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var http := $Http as HTTPRequest
+	if http != null:
+		http.process_mode = Node.PROCESS_MODE_ALWAYS
+
 func generate_title(turns: Array) -> String:
 	if AppConfig.get_ark_api_key().is_empty() or AppConfig.get_ark_model().is_empty():
 		return fallback_title(turns)

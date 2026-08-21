@@ -97,11 +97,11 @@ script = ExtResource("9")
 
 [node name="MicCapture" type="Node" parent="VoiceSession"]
 script = ExtResource("14")
-mic_player_path = NodePath("../MicInput")
+mic_player_path = NodePath("../../MicInput")
 
 [node name="PcmPlayer" type="Node" parent="VoiceSession"]
 script = ExtResource("15")
-player_path = NodePath("../NpcVoice")
+player_path = NodePath("../../NpcVoice")
 
 [node name="Crosshair" parent="." instance=ExtResource("6")]
 

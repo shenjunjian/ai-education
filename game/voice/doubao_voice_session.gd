@@ -79,6 +79,7 @@ func _process(_delta: float) -> void:
 		GameLog.log_line("ws closed code=%s" % _peer.get_close_code())
 		_peer = null
 	if _talking and Time.get_ticks_msec() - _last_audio_ms > 2000:
+		$PcmPlayer.stop_and_clear()
 		playback_stalled.emit()
 		_talking = false
 		talk_state_changed.emit(false)

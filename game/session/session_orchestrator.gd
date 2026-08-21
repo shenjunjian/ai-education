@@ -13,6 +13,8 @@ extends Node
 
 var _ending := false
 var _last_failed_record: Dictionary = {}
+var _pending_exit_to_menu := false
+var _pending_quit := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -63,11 +65,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_pause.show_pause()
 		get_viewport().set_input_as_handled()
 
-func end_current_and_save() -> void:
+func end_current_and_save() -> bool:
 	if _ending:
-		return
+		return _last_failed_record.is_empty()
 	_ending = true
 	_voice.stop()
+	var ok := true
 	if _session.has_non_empty_turns():
 		var title: String = await _titles.generate_title(_session.get_turns())
 		var rec := {
@@ -83,11 +86,17 @@ func end_current_and_save() -> void:
 		if path.is_empty():
 			_last_failed_record = rec
 			_banner.show_message("未保存", true)
+			ok = false
 		else:
 			_last_failed_record = {}
-	_session.clear()
-	_hud.clear_live()
+	if ok:
+		_session.clear()
+		_hud.clear_live()
 	_ending = false
+	return ok
+
+func request_pending_quit() -> void:
+	_pending_quit = true
 
 func retry_save() -> void:
 	if _last_failed_record.is_empty():
@@ -98,10 +107,23 @@ func retry_save() -> void:
 	else:
 		_last_failed_record = {}
 		_banner.hide_banner()
+		_session.clear()
+		_hud.clear_live()
+		_on_save_retry_success()
+
+func _on_save_retry_success() -> void:
+	if _pending_exit_to_menu:
+		_pending_exit_to_menu = false
+		get_tree().change_scene_to_file("res://ui/main_menu.tscn")
+	elif _pending_quit:
+		_pending_quit = false
+		get_tree().quit()
 
 func _on_target_changed(previous: NpcActor, current: NpcActor) -> void:
 	if previous != null:
-		await end_current_and_save()
+		var ok: bool = await end_current_and_save()
+		if not ok:
+			return
 	if current != null:
 		_start_for(current)
 
@@ -120,8 +142,13 @@ func _start_for(npc: NpcActor) -> void:
 
 func _exit_to_menu() -> void:
 	get_tree().paused = false
-	await end_current_and_save()
-	get_tree().change_scene_to_file("res://ui/main_menu.tscn")
+	var ok: bool = await end_current_and_save()
+	if ok:
+		get_tree().change_scene_to_file("res://ui/main_menu.tscn")
+	else:
+		_pending_exit_to_menu = true
+		get_tree().paused = true
+		_pause.show_pause()
 
 func _retry_save_or_voice() -> void:
 	if not _last_failed_record.is_empty():

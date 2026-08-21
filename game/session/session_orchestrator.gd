@@ -22,6 +22,7 @@ func _ready() -> void:
 	_hud.bind_session(_session)
 	_lock.target_changed.connect(_on_target_changed)
 	_pause.resume_pressed.connect(func() -> void:
+		_clear_pending_exit()
 		_pause.hide_pause()
 		get_tree().paused = false
 	)

@@ -104,7 +104,7 @@ static func decode(frame: PackedByteArray) -> DoubaoFrame:
 	var raw := frame.slice(offset, offset + plen)
 	if result.compression == COMPRESS_GZIP:
 		var buf_size: int = maxi(256, raw.size() * 16)
-		var dec := Compression.decompress(raw, buf_size, Compression.MODE_GZIP)
+		var dec := raw.decompress_dynamic(buf_size, FileAccess.COMPRESSION_GZIP)
 		if dec.is_empty():
 			GameLog.log_line("gzip payload decompress failed")
 			result.payload = PackedByteArray()

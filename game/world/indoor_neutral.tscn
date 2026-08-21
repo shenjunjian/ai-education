@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://world/indoor_neutral.gd" id="1"]
 [ext_resource type="PackedScene" path="res://world/player.tscn" id="2"]
@@ -6,6 +6,8 @@
 [ext_resource type="Resource" path="res://data/personas/cashier_default.tres" id="4"]
 [ext_resource type="Script" path="res://interaction/target_lock.gd" id="5"]
 [ext_resource type="PackedScene" path="res://ui/crosshair.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://ui/subtitle_hud.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="8"]
 
 [sub_resource type="Environment" id="Environment_indoor"]
 background_mode = 1
@@ -65,3 +67,7 @@ patrol_points = Array[Vector3]([Vector3(-1.5, 0.1, -2), Vector3(2.5, 0.1, -2), V
 script = ExtResource("5")
 
 [node name="Crosshair" parent="." instance=ExtResource("6")]
+
+[node name="SubtitleHud" parent="." instance=ExtResource("7")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("8")]
